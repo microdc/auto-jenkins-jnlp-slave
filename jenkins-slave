@@ -63,17 +63,22 @@ download_cli_jar
 trap 'exit' SIGINT SIGTERM
 trap 'jenkins_cli delete-node "$JENKINS_SLAVE_NAME" || true' EXIT
 
-# create node, unless it's already exists
-jenkins_cli get-node "$JENKINS_SLAVE_NAME" &>/dev/null || {
-    CONFIG="<slave><remoteFS>$JENKINS_SLAVE_REMOTE_FS</remoteFS><numExecutors>$JENKINS_SLAVE_NUM_EXECUTORS</numExecutors><launcher class='hudson.slaves.JNLPLauncher' /></slave>"
-    jenkins_cli create-node "$JENKINS_SLAVE_NAME" <<< "$CONFIG"
+register_node() {
+    killall java
+    # create node, unless it's already exists
+    jenkins_cli get-node "$JENKINS_SLAVE_NAME" &>/dev/null || {
+        CONFIG="<slave><remoteFS>$JENKINS_SLAVE_REMOTE_FS</remoteFS><numExecutors>$JENKINS_SLAVE_NUM_EXECUTORS</numExecutors><launcher class='hudson.slaves.JNLPLauncher' /></slave>"
+        jenkins_cli create-node "$JENKINS_SLAVE_NAME" <<< "$CONFIG"
+    }
+
+    # run slave
+    ( su $JENKINS_USER - -c \
+      "java $JAVA_OPTS -jar '$DOWNLOAD_DIR/slave.jar' -jnlpCredentials '$JENKINS_AUTH' -jnlpUrl '$JENKINS_URL/computer/$JENKINS_SLAVE_NAME/slave-agent.jnlp'" ) &
 }
-
-# run slave
-( su $JENKINS_USER - -c \
-  "java $JAVA_OPTS -jar '$DOWNLOAD_DIR/slave.jar' -jnlpCredentials '$JENKINS_AUTH' -jnlpUrl '$JENKINS_URL/computer/$JENKINS_SLAVE_NAME/slave-agent.jnlp'" ) &
-
-while curl -svm 5 "$JENKINS_URL" > /dev/null; do sleep 30; done
-
-# exit gracefully
-exit 0
+while true ; do
+    register_node()
+    sleep 5
+    while curl -svm 5 "$JENKINS_URL" > /dev/null; do
+        sleep 30;
+    done
+done
