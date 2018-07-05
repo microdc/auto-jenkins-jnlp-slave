@@ -19,7 +19,10 @@ RUN curl -L -o /usr/bin/kubectl https://storage.googleapis.com/kubernetes-releas
 RUN apk --no-cache add groff python py-pip && \
     pip install awscli==1.15.21 s3cmd==2.0.1
 
-
+# Install clair-scanner (cannot be run in docker)
+RUN wget https://github.com/arminc/clair-scanner/releases/download/v8/clair-scanner_linux_amd64 && \
+    mv clair-scanner_linux_amd64 /usr/bin/clair-scanner && \
+    chmod a+x /usr/bin/clair-scanner
 
 ENV JENKINS_HOME=/var/jenkins_home \
     JENKINS_USER=${user}
