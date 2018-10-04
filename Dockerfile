@@ -19,7 +19,7 @@ RUN curl -L -o /usr/bin/kubectl https://storage.googleapis.com/kubernetes-releas
 RUN apk --no-cache add su-exec docker groff python py-pip gettext procps xz && \
     apk --no-cache add --virtual=build gcc libffi-dev musl-dev openssl-dev python-dev python3-dev make && \
     pip install --upgrade pip==18.0 && \
-    pip install awscli s3cmd azure-cli yamllint && \
+    pip install awscli s3cmd azure-cli yamllint pipenv && \
     apk del --purge build
 
 # Install shellcheck for validating shell scripts in CI pipelines
