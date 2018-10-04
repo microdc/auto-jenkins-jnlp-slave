@@ -25,7 +25,7 @@ RUN apk --no-cache add su-exec docker groff python py-pip gettext procps xz && \
 # Install shellcheck for validating shell scripts in CI pipelines
 RUN curl -o /tmp/shellcheck.tar.xz https://shellcheck.storage.googleapis.com/shellcheck-v0.5.0.linux.x86_64.tar.xz && \
     cd /tmp && tar xJf shellcheck.tar.xz && cd shellcheck-* && \
-    mv shellcheck /usr/local/bin
+    mv shellcheck /usr/local/bin && rm -r /tmp/shellcheck*
 
 ENV JENKINS_HOME=/var/jenkins_home \
     JENKINS_USER=${user}
