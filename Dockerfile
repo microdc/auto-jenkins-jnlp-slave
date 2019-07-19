@@ -1,6 +1,5 @@
 FROM openjdk:8-alpine
 
-ENV PIP_VERSION=18.0
 ENV AZURE_CLI_VERSION=2.0.67
 ENV KUBECTL_VERSION=1.14.3
 
@@ -16,15 +15,15 @@ RUN apk --no-cache add curl dumb-init git openssh-client bash jq gettext
 RUN apk --no-cache add shadow su-exec docker
 RUN [ ! -e /etc/nsswitch.conf ] && echo 'hosts: files dns' > /etc/nsswitch.conf
 
-#Install kubectl
-RUN curl -L -o /usr/bin/kubectl https://storage.googleapis.com/kubernetes-release/release/v${KUBECTL_VERSION}/bin/linux/amd64/kubectl && chmod +x /usr/bin/kubectl
-
 #Install aws cli and azure cli
 RUN apk --no-cache add su-exec docker groff python py-pip gettext procps xz jq && \
-    apk --no-cache add --virtual=build gcc libffi-dev musl-dev openssl-dev python-dev python3-dev make linux-headers=4.4.6-r2 && \
-    pip install pip==${PIP_VERSION} && \
-    pip install awscli s3cmd azure-cli==${AZURE_CLI_VERSION} yamllint && \
+    apk --no-cache add --virtual=build gcc libffi-dev musl-dev openssl-dev python-dev python3-dev make linux-headers && \
+    pip --no-cache-dir install -U pip && \
+    pip --no-cache-dir install awscli s3cmd azure-cli==${AZURE_CLI_VERSION} yamllint && \
     apk del --purge build
+
+#Install kubectl
+RUN curl -L -o /usr/bin/kubectl https://storage.googleapis.com/kubernetes-release/release/v${KUBECTL_VERSION}/bin/linux/amd64/kubectl && chmod +x /usr/bin/kubectl
 
 # Install shellcheck for validating shell scripts in CI pipelines
 RUN curl -o /tmp/shellcheck.tar.xz https://shellcheck.storage.googleapis.com/shellcheck-v0.5.0.linux.x86_64.tar.xz && \
