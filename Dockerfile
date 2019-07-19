@@ -20,8 +20,8 @@ RUN [ ! -e /etc/nsswitch.conf ] && echo 'hosts: files dns' > /etc/nsswitch.conf
 RUN curl -L -o /usr/bin/kubectl https://storage.googleapis.com/kubernetes-release/release/v${KUBECTL_VERSION}/bin/linux/amd64/kubectl && chmod +x /usr/bin/kubectl
 
 #Install aws cli and azure cli
-RUN apk --no-cache add su-exec docker groff python py-pip gettext procps xz jq linux-headers=4.4.6-r2 && \
-    apk --no-cache add --virtual=build gcc libffi-dev musl-dev openssl-dev python-dev python3-dev make && \
+RUN apk --no-cache add su-exec docker groff python py-pip gettext procps xz jq && \
+    apk --no-cache add --virtual=build gcc libffi-dev musl-dev openssl-dev python-dev python3-dev make linux-headers=4.4.6-r2 && \
     pip install pip==${PIP_VERSION} && \
     pip install awscli s3cmd azure-cli==${AZURE_CLI_VERSION} yamllint && \
     apk del --purge build
